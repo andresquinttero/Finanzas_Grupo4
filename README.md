@@ -1,7 +1,9 @@
-# Finanzas_Grupo8
+# Finanzas Grupo 8
 
-Santiago Bustos Pianda.
+Santiago Bustos Pianda. 
+
 Juan Diego Correa Noreña.
+
 Andres Quintero Haddad.
 
 ## **Objetivo General**
