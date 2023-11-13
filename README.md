@@ -1,4 +1,8 @@
-# Finanzas_Grupo4
+# Finanzas_Grupo8
+
+Santiago Bustos Pianda
+Juan Diego Correa Noreña
+Andres Quintero Haddad
 
 ## **Objetivo General**
 Diseñar un modelo analítico integral para la tarificación precisa de seguros oncológicos
