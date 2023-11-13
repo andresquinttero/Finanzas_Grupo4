@@ -91,6 +91,19 @@ print(df_asegurados_expuestos.head(50))
 df_asegurados_expuestos.isnull().sum()
 
 
+##### Continuaremos con la limpiza y transformacion de los datos #####
+
+# Unir BD segun sea necesario
+df_merged = pd.merge(df_utilizaciones_medicas, df_sociodemograficas, on='Afiliado_Id', how='left')
+df_merged = pd.merge(df_merged, df_diagnosticos, on='Diagnostico_Codigo', how='left')
+df_merged = pd.merge(df_merged, df_reclamaciones, on='Reclamacion_Cd', how='left')
+df_merged = pd.merge(df_merged, df_regional, left_on='Regional', right_on='Regional_Id', how='left')
+df_merged = pd.merge(df_merged, df_genero, left_on='Sexo_Cd', right_on='Sexo_Cd', how='left')
+df_merged = pd.merge(df_merged, df_asegurados_expuestos, left_on='Afiliado_Id', right_on='Asegurado_Id', how='left')
+
+print(df_merged.head())
+
+
 ##### Luego de observar las diferenes BD se puede analizar lo siguiente: #####
 
 # 1. BD Utilizaciones Medicas:
@@ -118,3 +131,26 @@ df_asegurados_expuestos.isnull().sum()
 # Realizar análisis estadísticos para identificar correlaciones entre variables, como edad, género, regional, y las utilizaciones médicas y reclamaciones.
 # Considerar la integración de los diferentes conjuntos de datos para un análisis más holístico, lo que podría requerir transformaciones, como la unión de tablas basadas en claves comunes (por ejemplo, Afiliado_Id).
 
+
+
+##### Analisis de Outliers ##### AUN NO HECHO
+# Cálculo de IQR para Numero_Utilizaciones
+Q1_num = df_utilizaciones_medicas['Numero_Utilizaciones'].quantile(0.25)
+Q3_num = df_utilizaciones_medicas['Numero_Utilizaciones'].quantile(0.75)
+IQR_num = Q3_num - Q1_num
+
+# Filtrar outliers
+outliers_num = df_utilizaciones_medicas[(df_utilizaciones_medicas['Numero_Utilizaciones'] < (Q1_num - 1.5 * IQR_num)) | 
+                                       (df_utilizaciones_medicas['Numero_Utilizaciones'] > (Q3_num + 1.5 * IQR_num))]
+
+# Repetir el proceso para Valor_Utilizaciones
+Q1_val = df_utilizaciones_medicas['Valor_Utilizaciones'].quantile(0.25)
+Q3_val = df_utilizaciones_medicas['Valor_Utilizaciones'].quantile(0.75)
+IQR_val = Q3_val - Q1_val
+
+outliers_val = df_utilizaciones_medicas[(df_utilizaciones_medicas['Valor_Utilizaciones'] < (Q1_val - 1.5 * IQR_val)) | 
+                                       (df_utilizaciones_medicas['Valor_Utilizaciones'] > (Q3_val + 1.5 * IQR_val))]
+
+# Ver los outliers
+print(outliers_num)
+print(outliers_val)
