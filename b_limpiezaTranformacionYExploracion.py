@@ -2,7 +2,10 @@
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+############################ 1. LIMPIEZA Y TRANSFORMACION DE LOS DATOS ############################
 
 ##### Cargar los archivos de datos #####
 df_utilizaciones_medicas = pd.read_csv('databases/BD_UtilizacionesMedicas.csv', sep=';')
@@ -103,13 +106,14 @@ df_merged = pd.merge(df_merged, df_asegurados_expuestos, left_on='Afiliado_Id', 
 
 print(df_merged.head())
 
+# Se procede a Calcular la edad de los afiliados en años segundos la fecha de nacimiento y la fecha de corte y se anade al dataframe df_merged
+df_merged['Edad'] = df_merged.apply(lambda row: (fecha_corte - row['FechaNacimiento']).days // 365, axis=1)
 
 ##### Luego de observar las diferenes BD se puede analizar lo siguiente: #####
 
 # 1. BD Utilizaciones Medicas:
 # - La distribución de Numero_Utilizaciones y Valor_Utilizaciones sugiere una gran variabilidad en los costos y la frecuencia de las utilizaciones médicas. 
 # Es relevante investigar más sobre los casos con altos números de utilizaciones o valores extremadamente altos, ya que pueden ser outliers o casos especiales.
-# - En la  la columna 'FECHA' es de tipo object, se debe convertir a tipo fecha
 
 # 2. BD Diagnosticos:   
 # Se pueden explorar la relación entre los códigos de diagnóstico y las utilizaciones médicas para entender mejor las condiciones de salud más costosas o frecuentes.
@@ -133,24 +137,103 @@ print(df_merged.head())
 
 
 
-##### Analisis de Outliers ##### AUN NO HECHO
-# Cálculo de IQR para Numero_Utilizaciones
-Q1_num = df_utilizaciones_medicas['Numero_Utilizaciones'].quantile(0.25)
-Q3_num = df_utilizaciones_medicas['Numero_Utilizaciones'].quantile(0.75)
-IQR_num = Q3_num - Q1_num
+############################ 2. EXPLORACION DE LOS DATOS ############################
 
-# Filtrar outliers
-outliers_num = df_utilizaciones_medicas[(df_utilizaciones_medicas['Numero_Utilizaciones'] < (Q1_num - 1.5 * IQR_num)) | 
-                                       (df_utilizaciones_medicas['Numero_Utilizaciones'] > (Q3_num + 1.5 * IQR_num))]
+### a. Distribución de Utilizaciones y Costos ###
+sns.boxplot(x=df_merged['Numero_Utilizaciones'])
+plt.show()
+# Aqui se muestra la distribución de la cantidad de servicios médicos utilizados por los afiliados.
+# Se observa que La mayoría de las utilizaciones se concentran en un rango bajo.
+# Existen algunos puntos que son considerados outliers, situados lejos de la mayoría de los datos. Estos representan afiliados que han tenido un número de utilizaciones mucho mayor que la media.
 
-# Repetir el proceso para Valor_Utilizaciones
-Q1_val = df_utilizaciones_medicas['Valor_Utilizaciones'].quantile(0.25)
-Q3_val = df_utilizaciones_medicas['Valor_Utilizaciones'].quantile(0.75)
-IQR_val = Q3_val - Q1_val
+# Se priocede a hacer un analisis estadistico de los datos de la columna 'Numero_Utilizaciones'
+print(df_merged['Numero_Utilizaciones'].describe())
+# La cantidad de servicios médicos utilizados esta con una media de 1.57, lo que indica que la mayoría de los afiliados tienen un número bajo de utilizaciones.
+# Ademas que el 75% de los afiliados tienen 1 o menos utilizaciones.
 
-outliers_val = df_utilizaciones_medicas[(df_utilizaciones_medicas['Valor_Utilizaciones'] < (Q1_val - 1.5 * IQR_val)) | 
-                                       (df_utilizaciones_medicas['Valor_Utilizaciones'] > (Q3_val + 1.5 * IQR_val))]
+#Ahora vemos mas a profundidad los datos de los outliers, y hacemos la cuenta de cuantos tienen mas de 10 utilizaciones
+print(df_merged[df_merged['Numero_Utilizaciones'] > 10].head(10))
+print(df_merged[df_merged['Numero_Utilizaciones'] > 10].shape)
+# Vemos que 18299 afiliados tienen mas de 10 utilizaciones, lo que representa el 2,21% de los afiliados.
+# No es un valor muy significativo pero se analizaran de todas formas. Sobretodo los mas extremos.
 
-# Ver los outliers
-print(outliers_num)
-print(outliers_val)
+outliers_extremos = df_merged[df_merged['Numero_Utilizaciones'] > 50]
+print("Cantidad de outliers extremos:", outliers_extremos.shape[0])
+print(outliers_extremos.head(14))
+
+# 1. De esto podemos conlcluir que los afiliados con un alto número de utilizaciones tienen edades que varían desde niños hasta personas de edad avanzada. 
+# Por ejemplo, hay registros de afiliados que solo tienen 7 años, y otros que tienen 96 años. Esto podría sugerir que no hay un grupo de edad específico asociado con un alto uso de servicios médicos, sino que podría depender de condiciones individuales de salud 
+
+# 2. Algunos afiliados aparecen más de una vez, como el afiliado con ID 55030322. Esto podría indicar que están recibiendo servicios médicos repetitivos o que hay duplicados en los datos que necesitan ser revisados. Y con varios valores nulos. Se procede a elimiar el afiliado con ID 44269959 debido a sus valores nulos.
+df_merged = df_merged[df_merged['Afiliado_Id'] != 44269959]
+outliers_extremos = df_merged[df_merged['Numero_Utilizaciones'] > 50]
+
+# 3. Los outliers extremos no están concentrados en una sola región, lo que puede descartar la posibilidad de un error sistemático asociado con una ubicación en particular
+
+# 4. Hay algunas inconsistencias, como registros de personas que tienen 210 utilizaciones pero un valor de utilizaciones relativamente bajo. Esto podría sugerir errores de entrada o situaciones particulares donde se registraron muchas utilizaciones individuales con bajo costo cada una.
+
+# Para obtener una mejor comprensión de estos casos extremos, se procede a analizar y graficar más variables relacionadas.
+
+
+# Gráfico de dispersión de Numero_Utilizaciones vs Edad
+sns.scatterplot(data=outliers_extremos, x='Edad', y='Numero_Utilizaciones')
+plt.title('Relación entre Edad y Número de Utilizaciones para Outliers Extremos')
+plt.xlabel('Edad')
+plt.ylabel('Número de Utilizaciones')
+plt.show()
+# Aqui vemos que los 2 valores mas altos estan cercanos a los 60 años, y que la mayoria de los outliers extremos estan entre los 0 y 20 años.
+
+
+# Gráfico de dispersión de Numero_Utilizaciones vs Valor_Utilizaciones
+sns.scatterplot(data=outliers_extremos, x='Numero_Utilizaciones', y='Valor_Utilizaciones')
+plt.title('Relación entre Número y Valor de Utilizaciones para Outliers Extremos')
+plt.xlabel('Número de Utilizaciones')
+plt.ylabel('Valor de Utilizaciones')
+plt.show()
+
+# Visualización de la distribución de outliers por región
+plt.figure(figsize=(10, 6))
+sns.countplot(data=outliers_extremos, x='Regional_desc')
+plt.title('Distribución de Outliers Extremos por Región')
+plt.xticks(rotation=45)
+plt.xlabel('Región')
+plt.ylabel('Cantidad de Outliers')
+plt.show()
+
+# Distribución de los valores de utilización entre los outliers extremos.
+plt.figure(figsize=(10, 6))
+sns.histplot(outliers_extremos['Valor_Utilizaciones'], bins=30, kde=True)
+plt.title('Distribución del Valor de Utilizaciones entre Outliers Extremos')
+plt.xlabel('Valor de Utilizaciones')
+plt.ylabel('Frecuencia')
+plt.show()
+
+
+######## Ahora se procede a hacer el mismo analisis pero para TODOS los afiliados ########
+# Gráfico de dispersión de Numero_Utilizaciones vs Edad para todos los datos
+sns.scatterplot(data=df_merged, x='Edad', y='Numero_Utilizaciones')
+plt.title('Relación entre Edad y Número de Utilizaciones')
+plt.xlabel('Edad')
+plt.ylabel('Número de Utilizaciones')
+plt.show()
+
+# Gráfico de dispersión de Numero_Utilizaciones vs Valor_Utilizaciones para todos los datos
+sns.scatterplot(data=df_merged, x='Numero_Utilizaciones', y='Valor_Utilizaciones')
+plt.title('Relación entre Número y Valor de Utilizaciones')
+plt.xlabel('Número de Utilizaciones')
+plt.ylabel('Valor de Utilizaciones')
+plt.show()
+
+# Visualización de la distribución de outliers por región
+plt.figure(figsize=(10, 6))
+sns.countplot(data=df_merged, x='Regional_desc')
+plt.title('Distribución por Región')
+plt.xticks(rotation=45)
+plt.xlabel('Región')
+plt.ylabel('Cantidad de Pacientes')
+plt.show()
+
+
+### b. Distribución de Costos ###
+sns.boxplot(x=df_merged['Valor_Utilizaciones'])
+plt.show()
