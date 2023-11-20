@@ -10,10 +10,8 @@ Andres Quintero Haddad.
 Diseñar un modelo analítico integral para la tarificación precisa de seguros oncológicos
 
 ## **Problema analítico**
-1. Identificar y definir variables clave que influyan en la tarificación del seguro oncológico. 
-
-2. Identificar las variables más influyentes en el costo medico para tomar como base para revaluar la tarifacion en las persobas q se quieran retirar.
-
+1. Identificar y definir las variables más influyentes en el costo medico para tomar como base
+2. Evaluar la tarifacion en las persobas que se quieran retirar.
 3. Implementar un modelo que calcule de manera precisa las tarifas del seguro oncológico. Esto implica considerar el perfil individual del asegurado y evaluar sus riesgos asociados.
    
 ### **Diseño de solucion**
