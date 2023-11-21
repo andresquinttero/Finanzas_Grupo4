@@ -242,21 +242,3 @@ plt.xlabel('Región')
 plt.ylabel('Cantidad de Pacientes')
 plt.show()
 
-# Otros analisis estadisticos
-
-# Contar las utilizaciones más usadas por código de diagnóstico
-utilizaciones_count = df_utilizaciones_medicas['Diagnostico_Codigo'].value_counts().head(10)
-
-# Gráfico de barras para las utilizaciones más usadas
-plt.figure(figsize=(10, 6))
-sns.barplot(x=utilizaciones_count.values, y=utilizaciones_count.index)
-plt.title('Las 10 Utilizaciones Médicas Más Usadas por Código de Diagnóstico')
-plt.xlabel('Cantidad')
-plt.ylabel('Código de Diagnóstico')
-plt.show()
-
-# Guardamos df_merged en la base de datos sql para poder usarla en otros archivos
-df_merged.to_sql('df_merged', conn, if_exists='replace', index=False) 
-
-# Cerramos la conexión a la base de datos
-conn.close()
