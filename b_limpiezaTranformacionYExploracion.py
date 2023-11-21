@@ -190,6 +190,8 @@ plt.title('Relación entre Número y Valor de Utilizaciones para Outliers Extrem
 plt.xlabel('Número de Utilizaciones')
 plt.ylabel('Valor de Utilizaciones')
 plt.show()
+# La relación entre el número de utilizaciones y su valor no parece ser lineal ni directamente proporcional. 
+# Esto puede sugerir que hay casos en los que muchas utilizaciones no necesariamente se traducen en un costo más alto. Esto podría deberse a que algunas utilizaciones pueden ser servicios de menor costo.
 
 # Visualización de la distribución de outliers por región
 plt.figure(figsize=(10, 6))
@@ -233,7 +235,15 @@ plt.xlabel('Región')
 plt.ylabel('Cantidad de Pacientes')
 plt.show()
 
+# Otros analisis estadisticos
 
-### b. Distribución de Costos ###
-sns.boxplot(x=df_merged['Valor_Utilizaciones'])
+# Contar las utilizaciones más usadas por código de diagnóstico
+utilizaciones_count = df_utilizaciones_medicas['Diagnostico_Codigo'].value_counts().head(10)
+
+# Gráfico de barras para las utilizaciones más usadas
+plt.figure(figsize=(10, 6))
+sns.barplot(x=utilizaciones_count.values, y=utilizaciones_count.index)
+plt.title('Las 10 Utilizaciones Médicas Más Usadas por Código de Diagnóstico')
+plt.xlabel('Cantidad')
+plt.ylabel('Código de Diagnóstico')
 plt.show()
