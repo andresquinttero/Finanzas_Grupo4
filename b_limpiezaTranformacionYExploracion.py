@@ -4,8 +4,15 @@ import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sqlite3 as sql
 
 ############################ 1. LIMPIEZA Y TRANSFORMACION DE LOS DATOS ############################
+
+# Conectarse a la base de datos 
+conn = sql.connect('finanzas.db')
+
+# Crear el cursor
+cur = conn.cursor()
 
 ##### Cargar los archivos de datos #####
 df_utilizaciones_medicas = pd.read_csv('databases/BD_UtilizacionesMedicas.csv', sep=';')
@@ -247,3 +254,9 @@ plt.title('Las 10 Utilizaciones Médicas Más Usadas por Código de Diagnóstico
 plt.xlabel('Cantidad')
 plt.ylabel('Código de Diagnóstico')
 plt.show()
+
+# Guardamos df_merged en la base de datos sql para poder usarla en otros archivos
+df_merged.to_sql('df_merged', conn, if_exists='replace', index=False) 
+
+# Cerramos la conexión a la base de datos
+conn.close()
