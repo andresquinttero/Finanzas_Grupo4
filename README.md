@@ -16,5 +16,6 @@ Diseñar un modelo analítico integral para la tarificación precisa de seguros 
    
 ### **Diseño de solucion**
 
-![propuesta](https://github.com/andresquinttero/Finanzas_Grupo4/assets/100113128/b207228b-abe7-4671-9c66-c27820a0668b)
+![dolucion finanz](https://github.com/andresquinttero/Finanzas_Grupo4/assets/100113128/2ecbede6-5c16-4ac3-95b4-4885506bf9c7)
+
 
