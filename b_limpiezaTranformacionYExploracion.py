@@ -242,3 +242,8 @@ plt.xlabel('Región')
 plt.ylabel('Cantidad de Pacientes')
 plt.show()
 
+# Guardar df_merged en la base de datos SQL para luego usarla en otros archivos
+df_merged.to_sql('df_merged', conn, index=False, if_exists='replace')
+
+# Cerrar la conexión a la base de datos
+conn.close()
