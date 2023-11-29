@@ -17,6 +17,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import SGDRegressor       
 from sklearn.model_selection import KFold, cross_val_score, cross_validate, GridSearchCV, RandomizedSearchCV
 from sklearn.metrics import mean_squared_error
+import joblib
+
 
 # Conectarse a la base de datos 
 conn = sql.connect('finanzas.db')
@@ -156,10 +158,21 @@ modelo_RFR
 
 ##### Evaluación del modelo #####
 
+# Modelo con hiperparámetros
 eva_mod1 = cross_validate(modelo_RFR,X,Y,cv = 5, scoring ="neg_mean_squared_error", return_train_score = True)
 eva_mod1 = pd.DataFrame(eva_mod1)
 eva_mod1.mean()
 
+# Modelo sin hiperparámetros
 eva_mod2 = cross_validate(RandomForestRegressor(),X,Y,cv = 5, scoring ="neg_mean_squared_error", return_train_score = True)
 eva_mod2 = pd.DataFrame(eva_mod2)
 eva_mod2.mean()
+
+
+#### Despliegue del modelo #####
+
+# Guardar el modelo
+joblib.dump(modelo_RFR, 'modelo_RFR.pkl')
+
+# Cargar el modelo en producción
+modelo_cargado = joblib.load('modelo_RFR.pkl')
